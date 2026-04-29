@@ -1,6 +1,12 @@
 {
-  "name": "iPad Python + Gemini Dev",
+  "name": "iPad Vibe Coding — Python + Claude + Gemini",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
 
   "customizations": {
     "vscode": {
@@ -10,8 +16,9 @@
         "ms-python.black-formatter",
         "ms-python.isort",
         "ms-python.debugpy",
-        "google.geminipro",
         "ms-toolsai.jupyter",
+        "google.geminipro",
+        "googlecloudtools.cloudcode",
         "eamodio.gitlens"
       ],
       "settings": {
@@ -52,7 +59,13 @@
     }
   },
 
-  "postCreateCommand": "pip install --upgrade pip black isort pylint pytest pytest-cov ipykernel",
+  "postCreateCommand": "pip install --upgrade pip black isort pylint pytest pytest-cov ipykernel && npm install -g @anthropic-ai/claude-code && bash .devcontainer/setup-mcp.sh",
 
-  "remoteUser": "vscode"
+  "remoteUser": "vscode",
+
+  "secrets": {
+    "GEMINI_API_KEY": {
+      "description": "Google Gemini API Key (aistudio.google.com에서 발급)"
+    }
+  }
 }

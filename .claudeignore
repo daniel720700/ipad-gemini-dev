@@ -1,0 +1,43 @@
+# 의존성
+node_modules/
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# 빌드 결과물
+dist/
+build/
+.eggs/
+*.whl
+
+# 테스트 캐시
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# 환경 설정 (보안)
+.env
+.env.*
+*.pem
+*.key
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+
+# 대용량 데이터 (Gemini가 처리)
+data/raw/
+data/large/
+*.csv
+*.parquet
+*.pkl
