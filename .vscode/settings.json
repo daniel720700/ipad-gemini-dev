@@ -1,0 +1,31 @@
+{
+  "editor.fontSize": 16,
+  "editor.lineHeight": 1.7,
+  "editor.tabSize": 4,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "ms-python.black-formatter",
+  "editor.minimap.enabled": false,
+  "editor.wordWrap": "on",
+  "editor.smoothScrolling": true,
+  "editor.cursorBlinking": "smooth",
+  "editor.padding.top": 8,
+
+  "python.languageServer": "Pylance",
+  "python.analysis.typeCheckingMode": "basic",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true
+  },
+  "isort.args": ["--profile", "black"],
+
+  "terminal.integrated.fontSize": 15,
+  "terminal.integrated.lineHeight": 1.3,
+
+  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.sideBar.location": "right",
+
+  "files.autoSave": "onFocusChange",
+  "files.trimTrailingWhitespace": true,
+  "breadcrumbs.enabled": true,
+  "explorer.confirmDelete": false
+}

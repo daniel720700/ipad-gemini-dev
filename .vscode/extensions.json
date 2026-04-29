@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.pylance",
+    "ms-python.black-formatter",
+    "ms-python.isort",
+    "ms-python.debugpy",
+    "google.geminipro",
+    "ms-toolsai.jupyter",
+    "eamodio.gitlens"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "name": "iPad Python + Gemini Dev",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.pylance",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "ms-python.debugpy",
+        "google.geminipro",
+        "ms-toolsai.jupyter",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "editor.fontSize": 16,
+        "editor.lineHeight": 1.7,
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.minimap.enabled": false,
+        "editor.wordWrap": "on",
+        "editor.scrollBeyondLastLine": false,
+        "editor.cursorBlinking": "smooth",
+        "editor.smoothScrolling": true,
+        "editor.padding.top": 8,
+
+        "python.languageServer": "Pylance",
+        "python.analysis.typeCheckingMode": "basic",
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.formatOnSave": true
+        },
+        "isort.args": ["--profile", "black"],
+
+        "terminal.integrated.fontSize": 15,
+        "terminal.integrated.lineHeight": 1.3,
+        "terminal.integrated.cursorStyle": "line",
+
+        "workbench.colorTheme": "Default Dark Modern",
+        "workbench.iconTheme": "vs-seti",
+        "workbench.sideBar.location": "right",
+
+        "breadcrumbs.enabled": true,
+        "explorer.confirmDelete": false,
+        "files.autoSave": "onFocusChange",
+        "files.trimTrailingWhitespace": true
+      }
+    }
+  },
+
+  "postCreateCommand": "pip install --upgrade pip black isort pylint pytest pytest-cov ipykernel",
+
+  "remoteUser": "vscode"
+}
