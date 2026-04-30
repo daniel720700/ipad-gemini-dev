@@ -1,5 +1,5 @@
 #!/bin/bash
-# Gemini MCP 서버 연결 (Codespace 생성 시 자동 실행)
+# Gemini MCP 서버 연결 (Codespace 생성/시작 시 자동 실행)
 
 if [ -z "$GEMINI_API_KEY" ]; then
   echo "⚠️  GEMINI_API_KEY 없음 — MCP 설정 건너뜀"
@@ -7,12 +7,16 @@ if [ -z "$GEMINI_API_KEY" ]; then
   exit 0
 fi
 
+WRAPPER="$(cd "$(dirname "$0")" && pwd)/gemini-mcp-wrapper.sh"
+chmod +x "$WRAPPER"
+
 # 기존 등록 제거 후 재등록
 claude mcp remove gemini-pro 2>/dev/null || true
 
+# 래퍼 스크립트로 등록 — API 키가 mcp list에 노출되지 않음
 claude mcp add gemini-pro \
   -e "GEMINI_API_KEY=$GEMINI_API_KEY" \
-  -- npx -y gemini-mcp --api-key "$GEMINI_API_KEY"
+  -- bash "$WRAPPER"
 
 if [ $? -eq 0 ]; then
   echo "✅ Gemini MCP 연결 완료"
