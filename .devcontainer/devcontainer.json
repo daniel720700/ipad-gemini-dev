@@ -59,7 +59,10 @@
     }
   },
 
-  "postCreateCommand": "pip install --upgrade pip black isort pylint pytest pytest-cov ipykernel && npm install -g @anthropic-ai/claude-code && bash .devcontainer/setup-mcp.sh",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+
+  "forwardPorts": [4173],
+  "postStartCommand": "bash .devcontainer/setup-mcp.sh",
 
   "remoteUser": "vscode",
 
