@@ -5,124 +5,126 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Vibe Code" />
+  <meta name="apple-mobile-web-app-title" content="Vibe Coding" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="manifest" href="manifest.json" />
-  <title>Vibe Code</title>
+  <title>Vibe Coding Launcher</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       min-height: 100dvh;
       background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: env(safe-area-inset-top, 20px) env(safe-area-inset-right, 20px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 20px);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #e6edf3;
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      gap: 32px;
+    }
+
+    .title {
+      text-align: center;
+    }
+
+    .title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f0f6ff;
+    }
+
+    .title p {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      width: min(100%, 360px);
     }
 
     .card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 24px;
-      padding: 48px 40px;
-      text-align: center;
-      width: 90%;
-      max-width: 380px;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-    }
-
-    .logo {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, #1a73e8, #8430ce);
-      border-radius: 20px;
-      margin: 0 auto 24px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 40px;
-    }
-
-    h1 {
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
-    }
-
-    .subtitle {
-      font-size: 14px;
-      color: #8b949e;
-      margin-bottom: 36px;
-      line-height: 1.5;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 16px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: 600;
+      gap: 12px;
+      padding: 24px 16px;
+      border-radius: 22px;
       text-decoration: none;
-      transition: opacity 0.15s;
-      margin-bottom: 12px;
+      color: #e2e8f0;
+      background: #161b22;
+      border: 1px solid #21262d;
+      transition: transform 0.15s ease, background 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+      cursor: pointer;
     }
 
-    .btn:active { opacity: 0.75; }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #1a73e8, #8430ce);
-      color: #fff;
+    .card:active {
+      transform: scale(0.96);
+      background: #1c2128;
     }
 
-    .btn-secondary {
-      background: #21262d;
-      color: #e6edf3;
-      border: 1px solid #30363d;
+    .card .icon {
+      font-size: 36px;
+      line-height: 1;
     }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #21262d;
-      border: 1px solid #30363d;
-      border-radius: 20px;
-      padding: 4px 12px;
-      font-size: 12px;
-      color: #8b949e;
-      margin-top: 24px;
+    .card .label {
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
     }
 
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #3fb950;
+    .card .desc {
+      font-size: 11px;
+      color: #64748b;
+      text-align: center;
+      line-height: 1.4;
     }
+
+    .card.claude  { border-color: rgba(124, 58, 237, 0.4); }
+    .card.gemini  { border-color: rgba(59, 130, 246, 0.4); }
+    .card.codespace { border-color: rgba(34, 197, 94, 0.4); }
+    .card.github  { border-color: rgba(148, 163, 184, 0.3); }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="logo">⚡</div>
-    <h1>Vibe Code</h1>
-    <p class="subtitle">iPad · Gemini Pro · GitHub Codespace<br>Python 개발 환경</p>
+  <div class="title">
+    <h1>Vibe Coding</h1>
+    <p>Claude + Gemini + Codespace</p>
+  </div>
 
-    <a class="btn btn-primary" href="https://codespaces.new/daniel720700/ipad-gemini-dev">
-      🚀 코딩 시작하기
-    </a>
-    <a class="btn btn-secondary" href="https://github.com/codespaces">
-      📋 내 Codespaces 목록
+  <div class="grid">
+    <a class="card claude" href="https://claude.ai/" target="_blank" rel="noopener">
+      <div class="icon">🤖</div>
+      <div class="label">Claude</div>
+      <div class="desc">AI 대화 & 코딩</div>
     </a>
 
-    <div class="badge">
-      <span class="dot"></span>
-      daniel720700 / ipad-gemini-dev
-    </div>
+    <a class="card gemini" href="https://gemini.google.com/" target="_blank" rel="noopener">
+      <div class="icon">✨</div>
+      <div class="label">Gemini</div>
+      <div class="desc">설계 & 리뷰</div>
+    </a>
+
+    <a class="card codespace" href="https://urban-waddle-xrwpx696q5prcp9x.github.dev" target="_blank" rel="noopener">
+      <div class="icon">💻</div>
+      <div class="label">Codespace</div>
+      <div class="desc">Claude Code 환경</div>
+    </a>
+
+    <a class="card github" href="https://github.com/daniel720700/ipad-gemini-dev" target="_blank" rel="noopener">
+      <div class="icon">📁</div>
+      <div class="label">Repository</div>
+      <div class="desc">소스 코드</div>
+    </a>
   </div>
 </body>
 </html>

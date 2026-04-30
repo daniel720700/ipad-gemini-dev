@@ -1,8 +1,8 @@
 {
-  "name": "Vibe Code",
-  "short_name": "Vibe Code",
-  "description": "iPad + Gemini Pro + GitHub Codespace",
-  "start_url": "/ipad-gemini-dev/",
+  "name": "Vibe Coding",
+  "short_name": "Vibe Coding",
+  "description": "Claude + Gemini + Codespace 런처",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",

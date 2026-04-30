@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Claude Code 자동 시작",
+      "type": "shell",
+      "command": "claude",
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true,
+        "echo": false,
+        "close": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}
