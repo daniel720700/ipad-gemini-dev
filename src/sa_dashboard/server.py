@@ -14,12 +14,22 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from flask import (Flask, jsonify, render_template, request,
                    Response, session, redirect, url_for)
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from scraper import load_cache, run_scraper, TICKERS, DATA_DIR
 
 # ── Flask 설정 ──────────────────────────────────────────────────────
 app = Flask(__name__, template_folder="templates")
 app.secret_key = os.environ.get("SA_SECRET_KEY") or secrets.token_hex(32)
+
+# ── Rate Limiting (로그인 브루트포스 방지) ────────────────────────────
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[],          # 기본 제한 없음 (로그인에만 적용)
+    storage_uri="memory://",
+)
 
 SETTINGS_FILE = DATA_DIR / "settings.json"
 
@@ -108,6 +118,7 @@ def index():
 
 
 @app.route("/api/login", methods=["POST"])
+@limiter.limit("5 per minute; 20 per hour")
 def api_login():
     body = request.get_json(force=True) or {}
     email    = body.get("email", "").strip()
@@ -215,6 +226,15 @@ def export_csv():
         mimetype="text/csv",
         headers={"Content-Disposition": f"attachment; filename=sa_dashboard_{ts}.csv"},
     )
+
+
+# ── Rate limit 초과 핸들러 ───────────────────────────────────────────
+@app.errorhandler(429)
+def rate_limit_handler(e):
+    return jsonify({
+        "ok": False,
+        "error": "로그인 시도가 너무 많습니다. 잠시 후 다시 시도하세요."
+    }), 429
 
 
 # ── 앱 시작 ─────────────────────────────────────────────────────────
