@@ -12,106 +12,185 @@
     :root {
       --bg: #0d1117;
       --surface: #161b22;
+      --surface2: #1c2128;
       --border: #21262d;
       --text: #e6edf3;
       --muted: #64748b;
       --accent: #7c3aed;
-      --accent-hover: #6d28d9;
       --danger: #ef4444;
+      --sidebar-w: 260px;
     }
 
-    body {
-      min-height: 100dvh;
+    html, body {
+      height: 100%;
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    /* ── 전체 레이아웃 ── */
+    .app {
+      display: flex;
+      height: 100dvh;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* ── 사이드바 ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
       display: flex;
       flex-direction: column;
-      padding: env(safe-area-inset-top, 16px) env(safe-area-inset-right, 16px)
-               env(safe-area-inset-bottom, 16px) env(safe-area-inset-left, 16px);
+      border-right: 1px solid var(--border);
+      background: var(--surface);
     }
 
-    /* ── 헤더 ── */
-    header {
+    .sidebar-header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 16px 0 12px;
+      gap: 10px;
+      padding: 16px 14px 12px;
+      border-bottom: 1px solid var(--border);
     }
 
-    header a {
+    .sidebar-header a {
       color: var(--muted);
       text-decoration: none;
-      font-size: 20px;
+      font-size: 18px;
       line-height: 1;
+      flex-shrink: 0;
     }
 
-    header h1 {
-      font-size: 20px;
+    .sidebar-header h1 {
+      font-size: 16px;
       font-weight: 700;
       flex: 1;
+    }
+
+    .btn-new {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.12s;
+    }
+    .btn-new:active { opacity: 0.7; }
+
+    /* ── 메모 목록 ── */
+    .note-list {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .note-list::-webkit-scrollbar { width: 4px; }
+    .note-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .note-item {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.1s;
+      position: relative;
+    }
+    .note-item:hover { background: var(--surface2); }
+    .note-item.active { background: rgba(124, 58, 237, 0.15); border-left: 3px solid var(--accent); padding-left: 11px; }
+
+    .note-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .note-item.active .note-item-title { color: #a78bfa; }
+
+    .note-item-preview {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+
+    .note-item-date {
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    .note-item-delete {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 16px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .note-item:hover .note-item-delete { display: flex; }
+    .note-item-delete:hover { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+    .empty-list {
+      padding: 32px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* ── 에디터 영역 ── */
+    .editor-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .editor-topbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      min-height: 52px;
     }
 
     #save-status {
       font-size: 12px;
       color: var(--muted);
-      min-width: 60px;
-      text-align: right;
+      margin-left: auto;
     }
 
-    /* ── 탭 바 ── */
-    .tab-bar {
-      display: flex;
-      gap: 8px;
-      padding: 8px 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .tab-bar::-webkit-scrollbar { display: none; }
-
-    .tab {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--muted);
-      -webkit-tap-highlight-color: transparent;
-      transition: background 0.12s, color 0.12s;
-    }
-
-    .tab.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    .tab .close-btn {
-      font-size: 14px;
-      line-height: 1;
-      opacity: 0.6;
-    }
-    .tab .close-btn:hover { opacity: 1; }
-
-    #add-tab {
-      padding: 6px 12px;
-      font-size: 18px;
-      line-height: 1;
-    }
-
-    /* ── 에디터 ── */
-    .editor-wrap {
+    .editor-content {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      padding-top: 8px;
+      padding: 16px 20px;
+      overflow-y: auto;
     }
 
     #note-title {
@@ -120,10 +199,11 @@
       border: none;
       border-bottom: 1px solid var(--border);
       color: var(--text);
-      font-size: 18px;
-      font-weight: 600;
-      padding: 8px 0;
+      font-size: 20px;
+      font-weight: 700;
+      padding: 8px 0 10px;
       outline: none;
+      margin-bottom: 12px;
     }
     #note-title::placeholder { color: var(--muted); }
 
@@ -134,27 +214,24 @@
       border: none;
       color: var(--text);
       font-size: 15px;
-      line-height: 1.7;
-      padding: 12px 0;
+      line-height: 1.8;
       outline: none;
       resize: none;
-      min-height: 300px;
+      min-height: 200px;
     }
     #note-body::placeholder { color: var(--muted); }
 
-    /* ── 툴바 ── */
-    .toolbar {
+    .editor-toolbar {
       display: flex;
       gap: 8px;
-      padding: 12px 0;
+      padding: 12px 20px;
       border-top: 1px solid var(--border);
-      flex-wrap: wrap;
     }
 
     .btn {
-      padding: 9px 20px;
-      border-radius: 10px;
-      font-size: 14px;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       border: none;
@@ -162,13 +239,12 @@
       transition: opacity 0.12s, transform 0.1s;
     }
     .btn:active { transform: scale(0.96); opacity: 0.8; }
-
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-    .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(239,68,68,0.4); margin-left: auto; }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(239,68,68,0.3); margin-left: auto; }
 
-    /* ── 빈 화면 ── */
-    .empty {
+    /* ── 빈 에디터 ── */
+    .empty-editor {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -177,182 +253,236 @@
       gap: 12px;
       color: var(--muted);
     }
-    .empty .icon { font-size: 48px; }
-    .empty p { font-size: 14px; }
+    .empty-editor .icon { font-size: 48px; }
+    .empty-editor p { font-size: 14px; }
+
+    /* ── 모바일: 사이드바 토글 ── */
+    @media (max-width: 600px) {
+      :root { --sidebar-w: 100vw; }
+
+      .app { position: relative; }
+
+      .sidebar {
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        z-index: 10;
+        transform: translateX(0);
+        transition: transform 0.22s ease;
+      }
+      .sidebar.hidden { transform: translateX(-100%); }
+
+      .editor-pane { width: 100%; }
+
+      .mobile-back {
+        display: flex !important;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        border: none;
+        color: var(--accent);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+    }
+
+    .mobile-back { display: none; }
   </style>
 </head>
 <body>
-  <header>
-    <a href="index.html">←</a>
-    <h1>메모장</h1>
-    <span id="save-status"></span>
-  </header>
+<div class="app">
 
-  <div class="tab-bar" id="tab-bar">
-    <button class="tab" id="add-tab" onclick="addNote()">+</button>
-  </div>
+  <!-- 좌측 사이드바 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="index.html">←</a>
+      <h1>메모장</h1>
+      <button class="btn-new" onclick="addNote()" title="새 메모">+</button>
+    </div>
+    <div class="note-list" id="note-list"></div>
+  </aside>
 
-  <div id="editor-area">
-    <div class="empty">
-      <div class="icon">📝</div>
-      <p>+ 버튼을 눌러 새 메모를 만드세요</p>
+  <!-- 우측 에디터 -->
+  <div class="editor-pane" id="editor-pane">
+    <div class="editor-topbar">
+      <button class="mobile-back" onclick="showSidebar()">‹ 목록</button>
+      <span id="save-status"></span>
+    </div>
+    <div id="editor-area" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+      <div class="empty-editor">
+        <div class="icon">📝</div>
+        <p>새 메모를 선택하거나 만드세요</p>
+      </div>
     </div>
   </div>
 
-  <script>
-    const STORAGE_KEY = 'vibe_notes';
+</div>
+<script>
+  const STORAGE_KEY = 'vibe_notes';
+  let notes = [];
+  let activeId = null;
+  let saveTimer = null;
 
-    let notes = [];
-    let activeId = null;
-    let saveTimer = null;
+  function load() {
+    try { notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { notes = []; }
+  }
 
-    function load() {
-      try {
-        notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-      } catch { notes = []; }
+  function persistAndRefreshList() {
+    // 최신 저장 순 정렬
+    notes.sort((a, b) => b.updatedAt - a.updatedAt);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    showStatus('저장됨');
+    renderList();
+  }
+
+  function showStatus(msg) {
+    const el = document.getElementById('save-status');
+    el.textContent = msg;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { el.textContent = ''; }, 2000);
+  }
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  function formatDate(ts) {
+    const d = new Date(ts);
+    const now = new Date();
+    const isToday = d.toDateString() === now.toDateString();
+    if (isToday) return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+  }
+
+  /* ── 목록 렌더 ── */
+  function renderList() {
+    const list = document.getElementById('note-list');
+    if (notes.length === 0) {
+      list.innerHTML = '<div class="empty-list">메모가 없습니다.<br>+ 버튼으로 새 메모를 만드세요.</div>';
+      return;
     }
+    list.innerHTML = '';
+    notes.forEach(n => {
+      const item = document.createElement('div');
+      item.className = 'note-item' + (n.id === activeId ? ' active' : '');
+      item.onclick = () => setActive(n.id);
 
-    function save() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-      showStatus('저장됨');
+      const title = document.createElement('div');
+      title.className = 'note-item-title';
+      title.textContent = n.title || '새 메모';
+
+      const preview = document.createElement('div');
+      preview.className = 'note-item-preview';
+      preview.textContent = n.body.replace(/\n/g, ' ') || '내용 없음';
+
+      const date = document.createElement('div');
+      date.className = 'note-item-date';
+      date.textContent = formatDate(n.updatedAt);
+
+      const del = document.createElement('button');
+      del.className = 'note-item-delete';
+      del.textContent = '×';
+      del.title = '삭제';
+      del.onclick = e => { e.stopPropagation(); deleteNote(n.id); };
+
+      item.append(title, preview, date, del);
+      list.appendChild(item);
+    });
+  }
+
+  /* ── 에디터 렌더 ── */
+  function renderEditor() {
+    const area = document.getElementById('editor-area');
+    if (!activeId) {
+      area.innerHTML = `<div class="empty-editor"><div class="icon">📝</div><p>새 메모를 선택하거나 만드세요</p></div>`;
+      return;
     }
+    const note = notes.find(n => n.id === activeId);
+    if (!note) return;
 
-    function showStatus(msg) {
-      const el = document.getElementById('save-status');
-      el.textContent = msg;
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => { el.textContent = ''; }, 2000);
+    area.innerHTML = `
+      <div class="editor-content">
+        <input id="note-title" type="text" placeholder="제목" value="${escHtml(note.title)}" />
+        <textarea id="note-body" placeholder="내용을 입력하세요...">${escHtml(note.body)}</textarea>
+      </div>
+      <div class="editor-toolbar">
+        <button class="btn btn-primary" onclick="manualSave()">저장</button>
+        <button class="btn btn-secondary" onclick="copyNote()">복사</button>
+        <button class="btn btn-danger" onclick="deleteNote('${note.id}')">삭제</button>
+      </div>`;
+
+    document.getElementById('note-title').addEventListener('input', onInput);
+    document.getElementById('note-body').addEventListener('input', onInput);
+  }
+
+  function setActive(id) {
+    activeId = id;
+    renderList();
+    renderEditor();
+    // 모바일: 에디터로 전환
+    if (window.innerWidth <= 600) {
+      document.getElementById('sidebar').classList.add('hidden');
     }
+  }
 
-    function uid() {
-      return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    }
+  function addNote() {
+    const note = { id: uid(), title: '', body: '', updatedAt: Date.now() };
+    notes.unshift(note);
+    persistAndRefreshList();
+    setActive(note.id);
+    setTimeout(() => document.getElementById('note-title')?.focus(), 50);
+  }
 
-    function addNote() {
-      const note = { id: uid(), title: '', body: '', updatedAt: Date.now() };
-      notes.unshift(note);
-      save();
-      renderTabs();
-      setActive(note.id);
-    }
-
-    function deleteNote(id) {
-      if (!confirm('이 메모를 삭제할까요?')) return;
-      notes = notes.filter(n => n.id !== id);
-      save();
-      const next = notes[0]?.id || null;
-      renderTabs();
-      setActive(next);
-    }
-
-    function setActive(id) {
-      activeId = id;
-      renderTabs();
+  function deleteNote(id) {
+    if (!confirm('이 메모를 삭제할까요?')) return;
+    notes = notes.filter(n => n.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+    if (activeId === id) {
+      activeId = notes[0]?.id || null;
       renderEditor();
     }
+    renderList();
+  }
 
-    function renderTabs() {
-      const bar = document.getElementById('tab-bar');
-      bar.innerHTML = '';
+  function onInput() {
+    const note = notes.find(n => n.id === activeId);
+    if (!note) return;
+    note.title = document.getElementById('note-title').value;
+    note.body  = document.getElementById('note-body').value;
+    note.updatedAt = Date.now();
+    clearTimeout(window._autoSave);
+    window._autoSave = setTimeout(() => persistAndRefreshList(), 1000);
+  }
 
-      notes.forEach(n => {
-        const tab = document.createElement('button');
-        tab.className = 'tab' + (n.id === activeId ? ' active' : '');
+  function manualSave() {
+    const note = notes.find(n => n.id === activeId);
+    if (!note) return;
+    note.title = document.getElementById('note-title').value;
+    note.body  = document.getElementById('note-body').value;
+    note.updatedAt = Date.now();
+    persistAndRefreshList();
+  }
 
-        const label = document.createElement('span');
-        label.textContent = n.title || '새 메모';
-        label.style.maxWidth = '100px';
-        label.style.overflow = 'hidden';
-        label.style.textOverflow = 'ellipsis';
-        tab.appendChild(label);
+  function copyNote() {
+    const body = document.getElementById('note-body')?.value || '';
+    navigator.clipboard.writeText(body).then(() => showStatus('복사됨'));
+  }
 
-        const closeBtn = document.createElement('span');
-        closeBtn.className = 'close-btn';
-        closeBtn.textContent = '×';
-        closeBtn.onclick = e => { e.stopPropagation(); deleteNote(n.id); };
-        tab.appendChild(closeBtn);
+  function showSidebar() {
+    document.getElementById('sidebar').classList.remove('hidden');
+  }
 
-        tab.onclick = () => setActive(n.id);
-        bar.appendChild(tab);
-      });
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
-      const addBtn = document.createElement('button');
-      addBtn.className = 'tab';
-      addBtn.id = 'add-tab';
-      addBtn.textContent = '+';
-      addBtn.onclick = addNote;
-      bar.appendChild(addBtn);
-    }
-
-    function renderEditor() {
-      const area = document.getElementById('editor-area');
-
-      if (!activeId) {
-        area.innerHTML = `
-          <div class="empty">
-            <div class="icon">📝</div>
-            <p>+ 버튼을 눌러 새 메모를 만드세요</p>
-          </div>`;
-        return;
-      }
-
-      const note = notes.find(n => n.id === activeId);
-      if (!note) return;
-
-      area.innerHTML = `
-        <div class="editor-wrap">
-          <input id="note-title" type="text" placeholder="제목" value="${escHtml(note.title)}" />
-          <textarea id="note-body" placeholder="내용을 입력하세요...">${escHtml(note.body)}</textarea>
-          <div class="toolbar">
-            <button class="btn btn-primary" onclick="manualSave()">저장</button>
-            <button class="btn btn-secondary" onclick="copyNote()">복사</button>
-            <button class="btn btn-danger" onclick="deleteNote('${note.id}')">삭제</button>
-          </div>
-        </div>`;
-
-      document.getElementById('note-title').addEventListener('input', onInput);
-      document.getElementById('note-body').addEventListener('input', onInput);
-      document.getElementById('note-body').focus();
-    }
-
-    function onInput() {
-      const note = notes.find(n => n.id === activeId);
-      if (!note) return;
-      note.title = document.getElementById('note-title').value;
-      note.body  = document.getElementById('note-body').value;
-      note.updatedAt = Date.now();
-
-      // 탭 라벨 실시간 갱신
-      const activeTab = document.querySelector('.tab.active span:first-child');
-      if (activeTab) activeTab.textContent = note.title || '새 메모';
-
-      // 자동 저장 (1초 디바운스)
-      clearTimeout(window._autoSave);
-      window._autoSave = setTimeout(() => save(), 1000);
-    }
-
-    function manualSave() {
-      const note = notes.find(n => n.id === activeId);
-      if (!note) return;
-      note.title = document.getElementById('note-title').value;
-      note.body  = document.getElementById('note-body').value;
-      note.updatedAt = Date.now();
-      save();
-    }
-
-    function copyNote() {
-      const body = document.getElementById('note-body').value;
-      navigator.clipboard.writeText(body).then(() => showStatus('복사됨'));
-    }
-
-    function escHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    // 초기화
-    load();
-    renderTabs();
-    if (notes.length > 0) setActive(notes[0].id);
-  </script>
+  load();
+  notes.sort((a, b) => b.updatedAt - a.updatedAt);
+  renderList();
+  if (notes.length > 0) setActive(notes[0].id);
+</script>
 </body>
 </html>
