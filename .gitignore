@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/sa_session.json
+data/sa_cache.json
+data/settings.json

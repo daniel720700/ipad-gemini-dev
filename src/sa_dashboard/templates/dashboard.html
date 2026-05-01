@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SA Dashboard</title>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #7d8590;
+      --green: #3fb950;
+      --green-soft: rgba(63,185,80,0.15);
+      --blue: #58a6ff;
+      --blue-soft: rgba(88,166,255,0.12);
+      --yellow: #d29922;
+      --yellow-soft: rgba(210,153,34,0.15);
+      --red: #f85149;
+      --red-soft: rgba(248,81,73,0.15);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 13px;
+      min-height: 100vh;
+    }
+
+    /* ══ 로그인 오버레이 ══ */
+    .login-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .login-overlay.hidden { display: none; }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      width: min(420px, 92vw);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .login-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .login-card h2 span { color: var(--blue); }
+
+    .login-card p {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+    .form-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    .form-input:focus { border-color: var(--blue); }
+
+    .login-error {
+      font-size: 12px;
+      color: var(--red);
+      text-align: center;
+      min-height: 16px;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 11px;
+      border-radius: 8px;
+      border: none;
+      background: var(--blue);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.12s;
+    }
+    .btn-login:hover { opacity: 0.88; }
+    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .login-note {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* ══ 헤더 ══ */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: sticky; top: 0; z-index: 100;
+      flex-wrap: wrap;
+    }
+    .header h1 { font-size: 15px; font-weight: 700; white-space: nowrap; }
+    .header h1 span { color: var(--blue); }
+
+    .header-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .updated { font-size: 11px; color: var(--muted); }
+    .next-run { font-size: 11px; color: var(--green); }
+
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: opacity 0.12s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary   { background: var(--blue);    color: #fff; border-color: var(--blue); }
+    .btn-secondary { background: var(--surface2); color: var(--text); }
+    .btn-danger    { background: transparent; color: var(--red); border-color: rgba(248,81,73,0.4); }
+
+    /* 스케줄 설정 팝오버 */
+    .schedule-wrap { position: relative; }
+    .schedule-popup {
+      position: absolute;
+      right: 0; top: calc(100% + 8px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      width: 230px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 200;
+    }
+    .schedule-popup.open { display: flex; }
+    .schedule-popup label { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .schedule-row { display: flex; align-items: center; gap: 8px; }
+    .schedule-input {
+      width: 60px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+      padding: 5px 8px;
+      outline: none;
+      text-align: center;
+    }
+    .schedule-popup .schedule-note { font-size: 11px; color: var(--muted); }
+    .schedule-saved { font-size: 11px; color: var(--green); display: none; }
+
+    /* ══ 상태바 ══ */
+    .statusbar {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 24px;
+      font-size: 12px;
+      color: var(--muted);
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .statusbar.show { display: flex; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); animation: pulse 1s infinite; flex-shrink: 0; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+    /* ══ 메인 ══ */
+    .main { padding: 18px 24px; overflow-x: auto; }
+
+    /* ══ 테이블 ══ */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    thead th {
+      background: var(--surface);
+      padding: 9px 11px;
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+    }
+    thead th:first-child { text-align: left; }
+    thead tr:first-child th { border-bottom: none; }
+    thead tr:last-child th { border-top: 1px solid var(--border); }
+
+    /* 컬럼 그룹 헤더 */
+    .th-group {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 11px;
+      border-bottom: none !important;
+    }
+    .th-group-rating      { color: #a78bfa; }
+    .th-group-valuation   { color: var(--yellow); }
+    .th-group-growth      { color: var(--green); }
+    .th-group-profit      { color: var(--blue); }
+    .th-group-momentum    { color: var(--orange, #e3b341); }
+    .th-group-revisions   { color: #f472b6; }
+
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+
+    td { padding: 9px 11px; text-align: center; vertical-align: middle; }
+    td:first-child { text-align: left; font-weight: 700; }
+
+    .ticker-link { color: var(--blue); text-decoration: none; font-size: 14px; }
+    .ticker-link:hover { text-decoration: underline; }
+
+    .col-divider { border-left: 1px solid var(--border); }
+
+    /* ══ 배지/칩 ══ */
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-strong-buy  { background: var(--green-soft);                color: var(--green); }
+    .badge-buy         { background: rgba(63,185,80,0.08);             color: #6fcf97; }
+    .badge-hold        { background: var(--yellow-soft);               color: var(--yellow); }
+    .badge-sell        { background: var(--red-soft);                  color: var(--red); }
+    .badge-strong-sell { background: var(--red-soft);                  color: var(--red); }
+
+    .grade {
+      display: inline-block;
+      width: 22px; height: 22px;
+      border-radius: 4px;
+      font-size: 11px; font-weight: 700;
+      line-height: 22px; text-align: center;
+    }
+    .grade-A { background: var(--green-soft);  color: var(--green); }
+    .grade-B { background: var(--blue-soft);   color: var(--blue); }
+    .grade-C { background: var(--yellow-soft); color: var(--yellow); }
+    .grade-D { background: var(--red-soft);    color: var(--red); }
+
+    .score {
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      width: 27px; height: 27px;
+      border-radius: 50%;
+      font-size: 11px; font-weight: 700;
+    }
+    .score-high { background: var(--green-soft);  color: var(--green); }
+    .score-mid  { background: var(--yellow-soft); color: var(--yellow); }
+    .score-low  { background: var(--red-soft);    color: var(--red); }
+
+    .rsi-val { font-weight: 700; }
+    .rsi-hot  { color: var(--red); }
+    .rsi-warm { color: var(--green); }
+    .rsi-cold { color: var(--muted); }
+
+    .pct-pos { color: var(--green); }
+    .pct-neg { color: var(--red); }
+    .null-val { color: var(--muted); opacity: 0.5; }
+    .rev-up   { color: var(--green); font-weight: 700; }
+    .rev-down { color: var(--red);   font-weight: 700; }
+
+    /* ══ 로딩 ══ */
+    .loading { padding: 60px 0; text-align: center; color: var(--muted); }
+    .spinner {
+      width: 28px; height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══ 범례 ══ */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      margin-top: 14px;
+      font-size: 11px; color: var(--muted);
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+  </style>
+</head>
+<body>
+
+<!-- ══ 로그인 오버레이 ══ -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-card">
+    <h2>📊 <span>SA</span> Dashboard</h2>
+    <p>Seeking Alpha 계정으로 로그인하세요.<br>자격증명은 서버 세션에만 저장됩니다.</p>
+
+    <div class="form-group">
+      <label>이메일</label>
+      <input class="form-input" id="login-email" type="email" placeholder="your@email.com" autocomplete="username"/>
+    </div>
+    <div class="form-group">
+      <label>비밀번호</label>
+      <input class="form-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
+
+    <button class="btn-login" id="btn-login" onclick="doLogin()">로그인</button>
+
+    <p class="login-note">
+      🔒 비밀번호는 서버 세션에 암호화 저장되며<br>외부로 전송되지 않습니다.
+    </p>
+  </div>
+</div>
+
+<!-- ══ 헤더 ══ -->
+<div class="header" id="header" style="display:none;">
+  <h1>📊 <span>Seeking Alpha</span> Dashboard</h1>
+  <div class="header-meta">
+    <span class="updated" id="updated-at">—</span>
+    <span class="next-run" id="next-run">—</span>
+  </div>
+  <div class="header-right">
+    <div class="schedule-wrap">
+      <button class="btn btn-secondary" onclick="toggleSchedule()">⏰ 자동갱신</button>
+      <div class="schedule-popup" id="schedule-popup">
+        <label>매일 자동 갱신 시각 (KST)</label>
+        <div class="schedule-row">
+          <input class="schedule-input" id="sch-hour"   type="number" min="0" max="23" value="7" /> 시
+          <input class="schedule-input" id="sch-minute" type="number" min="0" max="59" value="0" /> 분
+          <button class="btn btn-primary" style="padding:5px 10px;" onclick="saveSchedule()">저장</button>
+        </div>
+        <span class="schedule-note">서버가 실행 중인 동안 자동 스크래핑됩니다.</span>
+        <span class="schedule-saved" id="schedule-saved">✅ 저장됨</span>
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="exportCSV()">⬇ CSV</button>
+    <button class="btn btn-primary" id="btn-refresh" onclick="triggerRefresh()">🔄 새로고침</button>
+    <button class="btn btn-danger" onclick="doLogout()">로그아웃</button>
+  </div>
+</div>
+
+<!-- ══ 상태바 ══ -->
+<div class="statusbar" id="statusbar">
+  <span class="dot"></span>
+  <span id="status-msg">스크래핑 중...</span>
+</div>
+
+<!-- ══ 본문 ══ -->
+<div class="main" id="main" style="display:none;">
+  <div id="table-container">
+    <div class="loading">
+      <div class="spinner"></div>
+      <div>데이터 로딩 중...</div>
+    </div>
+  </div>
+  <div class="legend">
+    <span class="legend-item"><span class="badge badge-strong-buy">Strong Buy</span> Quant ≥ 4.5</span>
+    <span class="legend-item"><span class="badge badge-buy">Buy</span> ≥ 3.5</span>
+    <span class="legend-item"><span class="badge badge-hold">Hold</span> ≥ 2.5</span>
+    <span class="legend-item"><span class="badge badge-sell">Sell</span> &lt; 2.5</span>
+    <span style="margin-left:12px;" class="legend-item">RSI:
+      <span class="rsi-hot">🔴 &gt;70 과열</span> /
+      <span class="rsi-warm">🟢 50~70 강세</span> /
+      <span class="rsi-cold">⚫ &lt;50 약세</span>
+    </span>
+    <span class="legend-item" style="margin-left:12px;">CFO 단위: $B(십억달러)</span>
+    <span class="legend-item" style="margin-left:12px;">V=밸류에이션 G=성장 P=수익성 M=모멘텀 R=리비전</span>
+  </div>
+</div>
+
+<script>
+  const TICKERS = ["TSLA","GOOGL","AMZN","LITE","SNDK","CRDO","MU","DELL","AMD","NVDA","ARM","BE"];
+  let pollTimer = null;
+
+  // ══ 초기화 ══
+  async function init() {
+    const st = await fetchStatus();
+    if (st.logged_in) {
+      showDashboard();
+      loadData();
+    }
+    // 이미 로그인된 경우 스케줄 값 반영
+    if (st.refresh_hour !== undefined) {
+      document.getElementById("sch-hour").value   = st.refresh_hour;
+      document.getElementById("sch-minute").value = st.refresh_minute;
+    }
+    if (st.next_run) {
+      document.getElementById("next-run").textContent = `다음 갱신: ${st.next_run}`;
+    }
+  }
+
+  function showDashboard() {
+    document.getElementById("login-overlay").classList.add("hidden");
+    document.getElementById("header").style.display = "flex";
+    document.getElementById("main").style.display   = "block";
+  }
+
+  // ══ 로그인 ══
+  async function doLogin() {
+    const email    = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value.trim();
+    const errEl    = document.getElementById("login-error");
+    const btn      = document.getElementById("btn-login");
+
+    if (!email || !password) { errEl.textContent = "이메일과 비밀번호를 입력하세요."; return; }
+    btn.disabled = true;
+    btn.textContent = "로그인 중...";
+    errEl.textContent = "";
+
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showDashboard();
+        loadData();
+      } else {
+        errEl.textContent = data.error || "로그인 실패";
+      }
+    } catch (e) {
+      errEl.textContent = "서버 오류: " + e.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "로그인";
+    }
+  }
+
+  // Enter 키 로그인
+  ["login-email","login-password"].forEach(id => {
+    document.getElementById(id).addEventListener("keydown", e => {
+      if (e.key === "Enter") doLogin();
+    });
+  });
+
+  // ══ 로그아웃 ══
+  async function doLogout() {
+    await fetch("/api/logout", { method: "POST" });
+    document.getElementById("login-overlay").classList.remove("hidden");
+    document.getElementById("header").style.display = "none";
+    document.getElementById("main").style.display   = "none";
+    document.getElementById("table-container").innerHTML =
+      `<div class="loading"><div class="spinner"></div><div>데이터 로딩 중...</div></div>`;
+  }
+
+  // ══ 데이터 로드 ══
+  async function loadData() {
+    try {
+      const res = await fetch("/api/data");
+      if (res.status === 404) {
+        document.getElementById("table-container").innerHTML =
+          `<div class="loading">데이터 없음. 🔄 새로고침 버튼을 눌러 스크래핑을 시작하세요.</div>`;
+        return;
+      }
+      if (!res.ok) return;
+      renderTable(await res.json());
+    } catch (e) {
+      document.getElementById("table-container").innerHTML =
+        `<div class="loading">오류: ${e.message}</div>`;
+    }
+  }
+
+  // ══ 새로고침 ══
+  async function triggerRefresh() {
+    document.getElementById("btn-refresh").disabled = true;
+    await fetch("/api/refresh", { method: "POST" });
+    startPolling();
+  }
+
+  function startPolling() {
+    const bar = document.getElementById("statusbar");
+    bar.classList.add("show");
+    clearInterval(pollTimer);
+    pollTimer = setInterval(async () => {
+      const st = await fetchStatus();
+      document.getElementById("status-msg").textContent = st.message || "진행 중...";
+      if (st.next_run) document.getElementById("next-run").textContent = `다음 갱신: ${st.next_run}`;
+      if (!st.running) {
+        clearInterval(pollTimer);
+        bar.classList.remove("show");
+        document.getElementById("btn-refresh").disabled = false;
+        loadData();
+      }
+    }, 3000);
+  }
+
+  async function fetchStatus() {
+    try {
+      const res = await fetch("/api/status");
+      return await res.json();
+    } catch { return {}; }
+  }
+
+  // ══ 자동갱신 스케줄 ══
+  function toggleSchedule() {
+    document.getElementById("schedule-popup").classList.toggle("open");
+  }
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".schedule-wrap"))
+      document.getElementById("schedule-popup").classList.remove("open");
+  });
+
+  async function saveSchedule() {
+    const hour   = parseInt(document.getElementById("sch-hour").value)   || 7;
+    const minute = parseInt(document.getElementById("sch-minute").value) || 0;
+    const res = await fetch("/api/schedule", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hour, minute }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      const saved = document.getElementById("schedule-saved");
+      saved.style.display = "block";
+      if (data.next_run) document.getElementById("next-run").textContent = `다음 갱신: ${data.next_run}`;
+      setTimeout(() => { saved.style.display = "none"; }, 2500);
+    }
+  }
+
+  // ══ CSV ══
+  function exportCSV() { window.location.href = "/api/export/csv"; }
+
+  // ══ 테이블 렌더 ══
+  function renderTable(data) {
+    const updated = data.updated_at
+      ? new Date(data.updated_at).toLocaleString("ko-KR") : "—";
+    document.getElementById("updated-at").textContent = `마지막 업데이트: ${updated}`;
+
+    const stocks = data.stocks || {};
+    const rows   = TICKERS.map(t => stocks[t] || { ticker: t });
+
+    document.getElementById("table-container").innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th rowspan="2" style="text-align:left;">종목</th>
+              <th class="th-group th-group-rating col-divider" colspan="7">Rating</th>
+              <th class="th-group th-group-valuation col-divider" colspan="4">Valuation</th>
+              <th class="th-group th-group-growth col-divider" colspan="3">Growth</th>
+              <th class="th-group th-group-profit col-divider" colspan="3">Profitability</th>
+              <th class="th-group th-group-momentum col-divider" colspan="1">Momentum</th>
+              <th class="th-group th-group-revisions col-divider" colspan="4">Earnings Revisions (3M)</th>
+            </tr>
+            <tr>
+              <th class="col-divider">Quant 종합</th>
+              <th title="Valuation">V</th>
+              <th title="Growth">G</th>
+              <th title="Profitability">P</th>
+              <th title="Momentum">M</th>
+              <th title="Revisions">R</th>
+              <th>SA Analyst</th>
+              <th class="col-divider">P/E FWD</th>
+              <th title="Sector Grade">Grade</th>
+              <th title="5Year Average">5Y Avg</th>
+              <th>PEG FWD</th>
+              <th class="col-divider">매출성장%</th>
+              <th>EPS성장%</th>
+              <th title="3~5Y CAGR">LT CAGR%</th>
+              <th class="col-divider">매출총익%</th>
+              <th>순이익%</th>
+              <th>CFO($B)</th>
+              <th class="col-divider">RSI(14)</th>
+              <th class="col-divider">EPS↑</th>
+              <th>EPS↓</th>
+              <th>Rev↑</th>
+              <th>Rev↓</th>
+            </tr>
+          </thead>
+          <tbody>${rows.map(renderRow).join("")}</tbody>
+        </table>
+      </div>`;
+  }
+
+  function renderRow(s) {
+    const t = s.ticker;
+    return `<tr>
+      <td><a class="ticker-link" href="https://seekingalpha.com/symbol/${t}/analysis" target="_blank">${t}</a></td>
+      <td class="col-divider">${quantBadge(s.quant_rating, s.quant_signal)}</td>
+      <td>${gradeChip(s.quant_valuation)}</td>
+      <td>${gradeChip(s.quant_growth)}</td>
+      <td>${gradeChip(s.quant_profitability)}</td>
+      <td>${gradeChip(s.quant_momentum)}</td>
+      <td>${gradeChip(s.quant_revisions)}</td>
+      <td>${fmtAnalyst(s.sa_analyst_rating)}</td>
+      <td class="col-divider">${fmtNum(s.pe_fwd)}</td>
+      <td>${gradeChip(s.pe_sector_grade)}</td>
+      <td>${fmtNum(s.pe_5y_avg)}</td>
+      <td>${fmtNum(s.peg_fwd)}</td>
+      <td class="col-divider">${fmtPct(s.revenue_growth_fwd)}</td>
+      <td>${fmtPct(s.eps_growth_fwd)}</td>
+      <td>${fmtPct(s.eps_lt_cagr)}</td>
+      <td class="col-divider">${fmtPct(s.gross_margin)}</td>
+      <td>${fmtPct(s.net_margin)}</td>
+      <td>${fmtNum(s.cfo)}</td>
+      <td class="col-divider">${rsiChip(s.rsi)}</td>
+      <td class="col-divider rev-up">${s.eps_up ?? "—"}</td>
+      <td class="rev-down">${s.eps_down ?? "—"}</td>
+      <td class="rev-up">${s.rev_up ?? "—"}</td>
+      <td class="rev-down">${s.rev_down ?? "—"}</td>
+    </tr>`;
+  }
+
+  function quantBadge(rating, signal) {
+    if (rating == null) return `<span class="null-val">—</span>`;
+    const cls = { "Strong Buy":"badge-strong-buy","Buy":"badge-buy","Hold":"badge-hold","Sell":"badge-sell","Strong Sell":"badge-strong-sell" }[signal] || "badge-hold";
+    return `<span class="badge ${cls}">${parseFloat(rating).toFixed(1)} ${signal}</span>`;
+  }
+  function scoreCircle(val) {
+    if (val == null) return `<span class="null-val">—</span>`;
+    const n = parseFloat(val);
+    const cls = n >= 4 ? "score-high" : n >= 2.5 ? "score-mid" : "score-low";
+    return `<span class="score ${cls}">${n.toFixed(1)}</span>`;
+  }
+  function gradeChip(g) {
+    if (!g) return `<span class="null-val">—</span>`;
+    const l = g[0].toUpperCase();
+    const cls = l === "A" ? "grade-A" : l === "B" ? "grade-B" : l === "C" ? "grade-C" : "grade-D";
+    return `<span class="grade ${cls}">${g}</span>`;
+  }
+  function rsiChip(val) {
+    if (val == null) return `<span class="null-val">—</span>`;
+    const n = parseFloat(val);
+    const cls = n >= 70 ? "rsi-hot" : n >= 50 ? "rsi-warm" : "rsi-cold";
+    return `<span class="rsi-val ${cls}">${n.toFixed(1)}</span>`;
+  }
+  function fmtPct(val) {
+    if (val == null) return `<span class="null-val">—</span>`;
+    const n = parseFloat(val);
+    const cls = n >= 0 ? "pct-pos" : "pct-neg";
+    return `<span class="${cls}">${n >= 0 ? "+" : ""}${n.toFixed(1)}%</span>`;
+  }
+  function fmtNum(val) {
+    if (val == null) return `<span class="null-val">—</span>`;
+    return parseFloat(val).toFixed(2);
+  }
+  function fmtAnalyst(val) {
+    if (!val) return `<span class="null-val">—</span>`;
+    const n = parseFloat(val);
+    if (isNaN(n)) return val;
+    // SA scale: 5=Strong Buy, 4=Buy, 3=Hold, 2=Sell, 1=Strong Sell
+    const cls = n >= 4.5 ? "badge-strong-buy" : n >= 3.5 ? "badge-buy" : n >= 2.5 ? "badge-hold" : n >= 1.5 ? "badge-sell" : "badge-strong-sell";
+    const label = n >= 4.5 ? "Strong Buy" : n >= 3.5 ? "Buy" : n >= 2.5 ? "Hold" : n >= 1.5 ? "Sell" : "Strong Sell";
+    return `<span class="badge ${cls}">${n.toFixed(2)} ${label}</span>`;
+  }
+
+  init();
+</script>
+</body>
+</html>
