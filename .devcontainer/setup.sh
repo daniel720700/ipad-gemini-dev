@@ -17,4 +17,9 @@ git lfs install
 echo "▶ Gemini MCP 연결..."
 bash "$(dirname "$0")/setup-mcp.sh"
 
+echo "▶ ttyd 설치..."
+curl -fsSL https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.x86_64 -o /tmp/ttyd
+chmod +x /tmp/ttyd
+sudo mv /tmp/ttyd /usr/local/bin/ttyd
+
 echo "=== 환경 셋업 완료 ==="

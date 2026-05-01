@@ -61,8 +61,14 @@
 
   "postCreateCommand": "bash .devcontainer/setup.sh",
 
-  "forwardPorts": [4173],
-  "postStartCommand": "bash .devcontainer/setup-mcp.sh",
+  "forwardPorts": [4173, 7681],
+  "portsAttributes": {
+    "7681": {
+      "label": "한글 터미널 (ttyd)",
+      "onAutoForward": "notify"
+    }
+  },
+  "postStartCommand": "bash .devcontainer/setup-mcp.sh && pkill ttyd 2>/dev/null; nohup ttyd --port 7681 --writable bash > /tmp/ttyd.log 2>&1 &",
 
   "remoteUser": "vscode",
 
