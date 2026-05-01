@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>메모장</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #21262d;
+      --text: #e6edf3;
+      --muted: #64748b;
+      --accent: #7c3aed;
+      --accent-hover: #6d28d9;
+      --danger: #ef4444;
+    }
+
+    body {
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top, 16px) env(safe-area-inset-right, 16px)
+               env(safe-area-inset-bottom, 16px) env(safe-area-inset-left, 16px);
+    }
+
+    /* ── 헤더 ── */
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 0 12px;
+    }
+
+    header a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    #save-status {
+      font-size: 12px;
+      color: var(--muted);
+      min-width: 60px;
+      text-align: right;
+    }
+
+    /* ── 탭 바 ── */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      padding: 8px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .tab .close-btn {
+      font-size: 14px;
+      line-height: 1;
+      opacity: 0.6;
+    }
+    .tab .close-btn:hover { opacity: 1; }
+
+    #add-tab {
+      padding: 6px 12px;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    /* ── 에디터 ── */
+    .editor-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 8px;
+    }
+
+    #note-title {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 600;
+      padding: 8px 0;
+      outline: none;
+    }
+    #note-title::placeholder { color: var(--muted); }
+
+    #note-body {
+      flex: 1;
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 12px 0;
+      outline: none;
+      resize: none;
+      min-height: 300px;
+    }
+    #note-body::placeholder { color: var(--muted); }
+
+    /* ── 툴바 ── */
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 9px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.12s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.96); opacity: 0.8; }
+
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(239,68,68,0.4); margin-left: auto; }
+
+    /* ── 빈 화면 ── */
+    .empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--muted);
+    }
+    .empty .icon { font-size: 48px; }
+    .empty p { font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html">←</a>
+    <h1>메모장</h1>
+    <span id="save-status"></span>
+  </header>
+
+  <div class="tab-bar" id="tab-bar">
+    <button class="tab" id="add-tab" onclick="addNote()">+</button>
+  </div>
+
+  <div id="editor-area">
+    <div class="empty">
+      <div class="icon">📝</div>
+      <p>+ 버튼을 눌러 새 메모를 만드세요</p>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'vibe_notes';
+
+    let notes = [];
+    let activeId = null;
+    let saveTimer = null;
+
+    function load() {
+      try {
+        notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch { notes = []; }
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+      showStatus('저장됨');
+    }
+
+    function showStatus(msg) {
+      const el = document.getElementById('save-status');
+      el.textContent = msg;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => { el.textContent = ''; }, 2000);
+    }
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    }
+
+    function addNote() {
+      const note = { id: uid(), title: '', body: '', updatedAt: Date.now() };
+      notes.unshift(note);
+      save();
+      renderTabs();
+      setActive(note.id);
+    }
+
+    function deleteNote(id) {
+      if (!confirm('이 메모를 삭제할까요?')) return;
+      notes = notes.filter(n => n.id !== id);
+      save();
+      const next = notes[0]?.id || null;
+      renderTabs();
+      setActive(next);
+    }
+
+    function setActive(id) {
+      activeId = id;
+      renderTabs();
+      renderEditor();
+    }
+
+    function renderTabs() {
+      const bar = document.getElementById('tab-bar');
+      bar.innerHTML = '';
+
+      notes.forEach(n => {
+        const tab = document.createElement('button');
+        tab.className = 'tab' + (n.id === activeId ? ' active' : '');
+
+        const label = document.createElement('span');
+        label.textContent = n.title || '새 메모';
+        label.style.maxWidth = '100px';
+        label.style.overflow = 'hidden';
+        label.style.textOverflow = 'ellipsis';
+        tab.appendChild(label);
+
+        const closeBtn = document.createElement('span');
+        closeBtn.className = 'close-btn';
+        closeBtn.textContent = '×';
+        closeBtn.onclick = e => { e.stopPropagation(); deleteNote(n.id); };
+        tab.appendChild(closeBtn);
+
+        tab.onclick = () => setActive(n.id);
+        bar.appendChild(tab);
+      });
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'tab';
+      addBtn.id = 'add-tab';
+      addBtn.textContent = '+';
+      addBtn.onclick = addNote;
+      bar.appendChild(addBtn);
+    }
+
+    function renderEditor() {
+      const area = document.getElementById('editor-area');
+
+      if (!activeId) {
+        area.innerHTML = `
+          <div class="empty">
+            <div class="icon">📝</div>
+            <p>+ 버튼을 눌러 새 메모를 만드세요</p>
+          </div>`;
+        return;
+      }
+
+      const note = notes.find(n => n.id === activeId);
+      if (!note) return;
+
+      area.innerHTML = `
+        <div class="editor-wrap">
+          <input id="note-title" type="text" placeholder="제목" value="${escHtml(note.title)}" />
+          <textarea id="note-body" placeholder="내용을 입력하세요...">${escHtml(note.body)}</textarea>
+          <div class="toolbar">
+            <button class="btn btn-primary" onclick="manualSave()">저장</button>
+            <button class="btn btn-secondary" onclick="copyNote()">복사</button>
+            <button class="btn btn-danger" onclick="deleteNote('${note.id}')">삭제</button>
+          </div>
+        </div>`;
+
+      document.getElementById('note-title').addEventListener('input', onInput);
+      document.getElementById('note-body').addEventListener('input', onInput);
+      document.getElementById('note-body').focus();
+    }
+
+    function onInput() {
+      const note = notes.find(n => n.id === activeId);
+      if (!note) return;
+      note.title = document.getElementById('note-title').value;
+      note.body  = document.getElementById('note-body').value;
+      note.updatedAt = Date.now();
+
+      // 탭 라벨 실시간 갱신
+      const activeTab = document.querySelector('.tab.active span:first-child');
+      if (activeTab) activeTab.textContent = note.title || '새 메모';
+
+      // 자동 저장 (1초 디바운스)
+      clearTimeout(window._autoSave);
+      window._autoSave = setTimeout(() => save(), 1000);
+    }
+
+    function manualSave() {
+      const note = notes.find(n => n.id === activeId);
+      if (!note) return;
+      note.title = document.getElementById('note-title').value;
+      note.body  = document.getElementById('note-body').value;
+      note.updatedAt = Date.now();
+      save();
+    }
+
+    function copyNote() {
+      const body = document.getElementById('note-body').value;
+      navigator.clipboard.writeText(body).then(() => showStatus('복사됨'));
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // 초기화
+    load();
+    renderTabs();
+    if (notes.length > 0) setActive(notes[0].id);
+  </script>
+</body>
+</html>
