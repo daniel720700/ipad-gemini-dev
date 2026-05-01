@@ -7,7 +7,8 @@ import sys
 from google import genai
 from google.genai import types
 
-API_KEY = os.environ.get("GEMINI_API_KEY")
+# VIVE_GEMINI_API_KEY 또는 GEMINI_API_KEY 중 설정된 것 사용
+API_KEY = os.environ.get("VIVE_GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
 MODEL = "models/gemini-2.5-flash"
 
 
@@ -31,7 +32,6 @@ def ask(prompt: str, use_search: bool = True) -> None:
         print()
     except Exception as e:
         if use_search and "PERMISSION_DENIED" in str(e):
-            # Search 권한 없을 때 일반 모드로 재시도
             ask(prompt, use_search=False)
         else:
             print(f"\n⚠️  오류: {e}", file=sys.stderr)
@@ -40,7 +40,7 @@ def ask(prompt: str, use_search: bool = True) -> None:
 
 if __name__ == "__main__":
     if not API_KEY:
-        print("⚠️  GEMINI_API_KEY 환경변수가 없습니다.", file=sys.stderr)
+        print("⚠️  API Key가 없습니다. VIVE_GEMINI_API_KEY 또는 GEMINI_API_KEY를 설정해주세요.", file=sys.stderr)
         sys.exit(1)
     if len(sys.argv) < 2:
         print("사용법: ask_gemini.py \"질문\"", file=sys.stderr)

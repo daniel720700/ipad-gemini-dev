@@ -29,5 +29,6 @@
   "breadcrumbs.enabled": true,
   "explorer.confirmDelete": false,
 
-  "task.allowAutomaticTasks": "on"
+  "task.allowAutomaticTasks": "on",
+  "remote.autoForwardPortsFallback": 0
 }
