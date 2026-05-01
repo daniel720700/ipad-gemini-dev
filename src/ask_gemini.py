@@ -8,7 +8,11 @@ from google import genai
 from google.genai import types
 
 # VIVE_GEMINI_API_KEY 또는 GEMINI_API_KEY 중 설정된 것 사용
-API_KEY = os.environ.get("VIVE_GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+API_KEY = (
+    os.environ.get("VIVE_JEMINI_API_KEY")
+    or os.environ.get("VIVE_GEMINI_API_KEY")
+    or os.environ.get("GEMINI_API_KEY")
+)
 MODEL = "models/gemini-2.5-flash"
 
 

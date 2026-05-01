@@ -2,7 +2,7 @@
 # Gemini MCP 서버 연결 (Codespace 생성/시작 시 자동 실행)
 
 # VIVE_GEMINI_API_KEY 또는 GEMINI_API_KEY 중 설정된 것 사용
-KEY="${VIVE_GEMINI_API_KEY:-$GEMINI_API_KEY}"
+KEY="${VIVE_JEMINI_API_KEY:-${VIVE_GEMINI_API_KEY:-$GEMINI_API_KEY}}"
 
 if [ -z "$KEY" ]; then
   echo "⚠️  Gemini API Key 없음 — MCP 설정 건너뜀"
