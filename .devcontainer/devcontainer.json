@@ -61,8 +61,13 @@
 
   "postCreateCommand": "bash .devcontainer/setup.sh",
 
-  "forwardPorts": [4173, 7681],
+  "forwardPorts": [4173, 5050, 7681],
   "portsAttributes": {
+    "5050": {
+      "label": "SA Dashboard",
+      "onAutoForward": "openBrowser",
+      "visibility": "public"
+    },
     "7681": {
       "label": "한글 터미널 (ttyd)",
       "onAutoForward": "notify"

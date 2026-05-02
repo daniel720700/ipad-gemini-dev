@@ -33,5 +33,14 @@
   "explorer.confirmDelete": false,
 
   "task.allowAutomaticTasks": "on",
-  "remote.autoForwardPortsFallback": 0
+  "remote.autoForwardPortsFallback": 0,
+
+  "remote.portsAttributes": {
+    "5050": {
+      "label": "SA Dashboard",
+      "onAutoForward": "openBrowser",
+      "visibility": "public"
+    }
+  },
+  "remote.forwardOnOpen": true
 }
